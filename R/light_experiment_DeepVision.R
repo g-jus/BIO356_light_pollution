@@ -66,7 +66,7 @@ t1 <- summary_stats |>
 ## 4. Statistical test: Changes in abundance between treatments (fisher).
 # ============================================================================
 
-# Simple chi-square or Fisher's exact test for independence
+# Fisher's exact test for independence.
 abundance_matrix <- xtabs(Count ~ Species_short + Treatment, data = summary_stats)
 fisher.test(abundance_matrix)
 
