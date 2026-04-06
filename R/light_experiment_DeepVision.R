@@ -60,44 +60,35 @@ t1 <- summary_stats |>
     decimals = 3
   )
 
-gtsave(filename = here("figures/table_summary.png"), data = t1)
-# ============================================================================
-## 4. Length analysis?
-# ============================================================================
-
-## ANCOVA: Length ~ Treatment + Species + Depth (as covariate).
-length_model <- lm(Length ~ Treatment + Species_short + Depth +
-                    Treatment:Species_short,
-                    data = combined_df)
-
+# gtsave(filename = here("figures/table_summary.png"), data = t1)
 
 # ============================================================================
-## 5. Statistical test: T-test.
+## 4. Statistical test: Changes in abundance between treatments (fisher).
+# ============================================================================
+
+# Simple chi-square or Fisher's exact test for independence
+abundance_matrix <- xtabs(Count ~ Species_short + Treatment, data = summary_stats)
+fisher.test(abundance_matrix)
+
+# ============================================================================
+## 5. Statistical test: T-test for mean depth of capture in treatments.
+# ============================================================================
+
+## T-test: Did light affect mean depth of capture?
+for (sp in unique(combined_df$Species_short)) {
+  cat(sprintf("\n%s:\n", sp))
+
+  result <- t.test(Depth ~ Treatment,
+                   data = combined_df |> filter(Species_short == sp))
+  print(result)
+}
+
+# ============================================================================
+## 6. Statistical test: T-test for length of capture in treatments.
 # ============================================================================
 
 ## T-tests for length differences by treatment within each species.
 for (sp in unique(combined_df$Species_short)) {
-  sp_data <- combined_df |> filter(Species_short == sp)
-  dark <- sp_data |> filter(Treatment == "Without artificial light") |> pull(Length)
-  light <- sp_data |> filter(Treatment == "With artificial light") |> pull(Length)
-
-  t_result <- t.test(dark, light)
-
-  cat(sprintf("\n%s:\n", sp))
-  cat(sprintf("  Dark Mean: %.2f mm (SD: %.2f)\n", mean(dark), sd(dark)))
-  cat(sprintf("  Light Mean: %.2f mm (SD: %.2f)\n", mean(light), sd(light)))
-  cat(sprintf("  t-test p-value: %.4f\n", t_result$p.value))
-}
-
-## Simple t-test of both species.
-t.test(Length ~ Treatment,
-       data = combined_df |> filter(Species_short == "B. glaciale"))
-
-t.test(Length ~ Treatment,
-       data = combined_df |> filter(Species_short == "M. muelleri"))
-
-## Small for loop
-for (sp in c("B. glaciale", "M. muelleri")) {
   cat(sprintf("\n%s:\n", sp))
 
   result <- t.test(Length ~ Treatment,
@@ -105,8 +96,9 @@ for (sp in c("B. glaciale", "M. muelleri")) {
 
   print(result)
 }
+
 # ============================================================================
-## 6. Visualization.
+## 8. Visualization.
 # ============================================================================
 
 ## Plot 1: Boxplot of length by treatment and species.
@@ -124,7 +116,7 @@ p1 <- ggplot(combined_df, aes(x = Treatment, y = Length, fill = Treatment)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
         legend.position = "bottom")
 
-#ggsave(here("figures/01_length_boxplot.png"), p1, width = 10, height = 6)
+# ggsave(here("figures/01_length_boxplot.png"), p1, width = 10, height = 6)
 
 ## Plot 2: Length distribution by treatment and species.
 p2 <- ggplot(combined_df, aes(x = Length, fill = Treatment)) +
@@ -139,7 +131,7 @@ p2 <- ggplot(combined_df, aes(x = Length, fill = Treatment)) +
   theme_bw() +
   theme(legend.position = "bottom")
 
-#ggsave(here("figures/02_length_distribution.png"), p2, width = 10, height = 6)
+# ggsave(here("figures/02_length_distribution.png"), p2, width = 10, height = 6)
 
 ## Plot 3: Length vs Depth by treatment.
 p3 <- ggplot(combined_df, aes(x = Depth, y = Length, color = Treatment)) +
@@ -155,7 +147,7 @@ p3 <- ggplot(combined_df, aes(x = Depth, y = Length, color = Treatment)) +
   theme_bw() +
   theme(legend.position = "bottom")
 
-#ggsave(here("figures/03_length_vs_depth.png"), p3, width = 10, height = 6)
+# ggsave(here("figures/03_length_vs_depth.png"), p3, width = 10, height = 6)
 
 ## Plot 4: Count comparison bar plot.
 p4 <- ggplot(summary_stats, aes(x = Species_short, y = Count, fill = Treatment)) +
@@ -170,4 +162,4 @@ p4 <- ggplot(summary_stats, aes(x = Species_short, y = Count, fill = Treatment))
   theme_bw() +
   theme(legend.position = "bottom")
 
-#ggsave(here("figures/04_abundance_comparison.png"), p4, width = 8, height = 6)
+# ggsave(here("figures/04_abundance_comparison.png"), p4, width = 8, height = 6)
