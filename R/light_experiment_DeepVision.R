@@ -3,6 +3,7 @@
 # ============================================================================
 
 library(tidyverse)
+library(gt)
 library(here)
 library(conflicted)
 conflict_prefer_all("dplyr", quiet = TRUE)
@@ -48,7 +49,18 @@ summary_stats <- combined_df |>
     .groups = "drop"
   )
 
+t1 <- summary_stats |>
+  gt() |>
+  fmt_number(
+    columns = c(Mean_Length, Mean_Depth),
+    decimals = 2
+  ) |>
+  fmt_number(
+    columns = c(SD_Length, SD_Depth),
+    decimals = 3
+  )
 
+gtsave(filename = here("figures/table_summary.png"), data = t1)
 # ============================================================================
 ## 4. Length analysis?
 # ============================================================================
