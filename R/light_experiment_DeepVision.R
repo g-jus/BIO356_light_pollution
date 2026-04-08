@@ -97,6 +97,10 @@ for (sp in unique(combined_df$Species_short)) {
   print(result)
 }
 
+
+model_with_interaction <- lm(Depth ~ Length * Treatment, data = combined_df)
+summary(model_with_interaction)
+
 # ============================================================================
 ## 8. Visualization.
 # ============================================================================
@@ -134,16 +138,17 @@ p2 <- ggplot(combined_df, aes(x = Length, fill = Treatment)) +
 # ggsave(here("figures/02_length_distribution.png"), p2, width = 10, height = 6)
 
 ## Plot 3: Length vs Depth by treatment.
-p3 <- ggplot(combined_df, aes(x = Depth, y = Length, color = Treatment)) +
+p3 <- ggplot(combined_df, aes(x = Length, y = Depth, color = Treatment)) +
   geom_point(alpha = 0.6, size = 3) +
   geom_smooth(method = "lm", se = TRUE, alpha = 0.2) +
   facet_wrap(~Species_short) +
   labs(
     title = "Length vs Depth by Treatment",
-    x = "Depth (m)",
-    y = "Length (mm)",
+    x = "Length (mm)",
+    y = "Depth (m)",
     color = "Treatment"
   ) +
+  scale_y_reverse() +
   theme_bw() +
   theme(legend.position = "bottom")
 

@@ -16,7 +16,7 @@ ctd_284 <- as.data.frame(ctd_284@data) |>
 
 ctd_data <- bind_rows(list(ctd_282, ctd_283, ctd_284))
 
-ggplot(data = ctd_data, aes(x = salinity, y = pressure, fill = temperature)) +
+ctd_plot <- ggplot(data = ctd_data, aes(x = salinity, y = pressure, fill = temperature)) +
   geom_point(shape = 21,
              size = 4,
              alpha = 0.3) +
@@ -32,8 +32,9 @@ ggplot(data = ctd_data, aes(x = salinity, y = pressure, fill = temperature)) +
     name = "Temperature (C)",
     option = "mako",
     direction = -1) +
-  labs(x = "Par (umol photons/m^-2/sec)",
+  labs(x = "Par (umol photons*m^-2*second^-1)",
        y = "Depth (m)") +
   theme_bw()
 
+# ggsave(here("figures/ctd.png"), ctd_plot, width = 10, height = 6)
 
