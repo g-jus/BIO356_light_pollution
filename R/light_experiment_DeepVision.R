@@ -122,7 +122,7 @@ DHARMa::plotSimulatedResiduals(sim)
 
 ## Negative binomial fits the data with little overdispersion.
 ## But I do not know how to analyse residuals with only four points?
-## Is the model relaiable with only four observations?
+## Is the model reliable with only four observations?
 
 # ============================================================================
 ## 8. Visualization.
