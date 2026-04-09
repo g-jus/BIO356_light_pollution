@@ -155,7 +155,7 @@ p2 <- ggplot(combined_df, aes(x = Treatment, y = Length, fill = Treatment)) +
 # ggsave(here("figures/02_length_boxplot.png"), p2, width = 10, height = 6)
 
 ## Plot 3: Length distribution by treatment and species.
-p2 <- ggplot(combined_df, aes(x = Length, fill = Treatment)) +
+p3 <- ggplot(combined_df, aes(x = Length, fill = Treatment)) +
   geom_histogram(position = "dodge", bins = 5, alpha = 0.7) +
   facet_wrap(~Species_short) +
   labs(
@@ -184,6 +184,4 @@ p4 <- ggplot(combined_df, aes(x = Length, y = Depth, color = Treatment)) +
   theme_bw() +
   theme(legend.position = "bottom")
 
-# ggsave(here("figures/03_length_vs_depth.png"), p4, width = 10, height = 6)
-
-
+# ggsave(here("figures/04_length_vs_depth.png"), p4, width = 10, height = 6)
