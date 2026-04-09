@@ -98,14 +98,31 @@ for (sp in unique(combined_df$Species_short)) {
 }
 
 # ============================================================================
-## 7. Fitting a model
+## 7. Fitting a model - exploratory.
 # ============================================================================
 
-model_with_interaction <- lm(Depth ~ Length * Treatment, data = combined_df)
-summary(model_with_interaction)
+abundance_data <- combined_df |>
+  group_by(Species_short, Treatment) |>
+  summarise(Count = n(), .groups = "drop")
 
-## Model is significant, but accounts for very little of the variation.
-## It is hard to get a good fit for a model with only samples per treatment.
+print(abundance_data)
+
+## Fitting a negative binomial model to the data.
+glm_nb <- MASS::glm.nb(Count ~ Treatment,
+                 data = abundance_data)
+
+summary(glm_nb)
+
+## Simulating residuals.
+sim <- DHARMa::simulateResiduals(glm_nb, plot = FALSE)
+
+# Check for overdispersion
+DHARMa::testDispersion(sim)
+DHARMa::plotSimulatedResiduals(sim)
+
+## Negative binomial fits the data with little overdispersion.
+## But I do not know how to analyse residuals with only four points?
+## Is the model relaiable with only four observations?
 
 # ============================================================================
 ## 8. Visualization.
