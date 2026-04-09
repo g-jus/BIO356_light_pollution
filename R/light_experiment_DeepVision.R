@@ -100,15 +100,9 @@ for (sp in unique(combined_df$Species_short)) {
 ## 7. Fitting a model - exploratory.
 # ============================================================================
 
-abundance_data <- combined_df |>
-  group_by(Species_short, Treatment) |>
-  summarise(Count = n(), .groups = "drop")
-
-print(abundance_data)
-
 ## Fitting a negative binomial model to the data.
-glm_nb <- MASS::glm.nb(Count ~ Treatment,
-                 data = abundance_data)
+glm_nb <- MASS::glm.nb(Count ~ treatment,
+                 data = summary_count)
 
 summary(glm_nb)
 
@@ -127,8 +121,24 @@ DHARMa::plotSimulatedResiduals(sim)
 ## 8. Visualization.
 # ============================================================================
 
-## Plot 1: Boxplot of length by treatment and species.
-p1 <- ggplot(combined_df, aes(x = Treatment, y = Length, fill = Treatment)) +
+## Plot 1: Count comparison bar plot.
+p1 <- ggplot(summary_count, aes(x = left_label, y = Count, fill = treatment)) +
+  geom_col(position = "dodge", alpha = 0.8) +
+  geom_text(aes(label = Count), position = position_dodge(width = 0.9), vjust = -0.5) +
+  labs(
+    title = "Abundance: Number of Individuals Captured",
+    x = "Species",
+    y = "Count",
+    fill = "Treatment"
+  ) +
+  theme_bw() +
+  theme(legend.position = "bottom")
+
+# ggsave(here("figures/01_abundance_comparison.png"), p1, width = 8, height = 6)
+
+
+## Plot 2: Boxplot of length by treatment and species.
+p2 <- ggplot(combined_df, aes(x = Treatment, y = Length, fill = Treatment)) +
   geom_boxplot(alpha = 0.7) +
   geom_jitter(width = 0.2, alpha = 0.3, size = 2) +
   facet_wrap(~Species_short) +
@@ -142,9 +152,9 @@ p1 <- ggplot(combined_df, aes(x = Treatment, y = Length, fill = Treatment)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
         legend.position = "bottom")
 
-# ggsave(here("figures/01_length_boxplot.png"), p1, width = 10, height = 6)
+# ggsave(here("figures/02_length_boxplot.png"), p2, width = 10, height = 6)
 
-## Plot 2: Length distribution by treatment and species.
+## Plot 3: Length distribution by treatment and species.
 p2 <- ggplot(combined_df, aes(x = Length, fill = Treatment)) +
   geom_histogram(position = "dodge", bins = 5, alpha = 0.7) +
   facet_wrap(~Species_short) +
@@ -157,10 +167,10 @@ p2 <- ggplot(combined_df, aes(x = Length, fill = Treatment)) +
   theme_bw() +
   theme(legend.position = "bottom")
 
-# ggsave(here("figures/02_length_distribution.png"), p2, width = 10, height = 6)
+# ggsave(here("figures/03_length_distribution.png"), p3, width = 10, height = 6)
 
-## Plot 3: Length vs Depth by treatment.
-p3 <- ggplot(combined_df, aes(x = Length, y = Depth, color = Treatment)) +
+## Plot 4: Length vs Depth by treatment.
+p4 <- ggplot(combined_df, aes(x = Length, y = Depth, color = Treatment)) +
   geom_point(alpha = 0.6, size = 3) +
   geom_smooth(method = "lm", se = TRUE, alpha = 0.2) +
   facet_wrap(~Species_short) +
@@ -174,19 +184,6 @@ p3 <- ggplot(combined_df, aes(x = Length, y = Depth, color = Treatment)) +
   theme_bw() +
   theme(legend.position = "bottom")
 
-# ggsave(here("figures/03_length_vs_depth.png"), p3, width = 10, height = 6)
+# ggsave(here("figures/03_length_vs_depth.png"), p4, width = 10, height = 6)
 
-## Plot 4: Count comparison bar plot.
-p4 <- ggplot(summary_stats, aes(x = Species_short, y = Count, fill = Treatment)) +
-  geom_col(position = "dodge", alpha = 0.8) +
-  geom_text(aes(label = Count), position = position_dodge(width = 0.9), vjust = -0.5) +
-  labs(
-    title = "Abundance: Number of Individuals Captured",
-    x = "Species",
-    y = "Count",
-    fill = "Treatment"
-  ) +
-  theme_bw() +
-  theme(legend.position = "bottom")
 
-# ggsave(here("figures/04_abundance_comparison.png"), p4, width = 8, height = 6)
