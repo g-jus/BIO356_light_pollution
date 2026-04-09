@@ -12,7 +12,7 @@ conflict_prefer_all("dplyr", quiet = TRUE)
 ## 2. Loading and cleaning data.
 # ============================================================================
 
-## Load data.
+## Load data from 50 manual samples of length.
 dark_data <- read.csv2(here("data/length_trawl_data/First_night_trawl_length_DV.csv"))
 light_data <- read.csv2(here("data/length_trawl_data/Second_night_trawl_length_DV.csv"))
 
@@ -31,12 +31,23 @@ combined_df <- bind_rows(dark_data, light_data) |>
   ) |>
   filter(!is.na(Length), !is.na(Depth))
 
+## Load data for all samples, indentified by AI system in DeepVision.
+art_light <- read.csv(here("data/length_trawl_data/artificial_light.csv"))
+
 # ============================================================================
 ## 3. Data summary / exploratory analysis.
 # ============================================================================
 
+## Summary count from second file.
+summary_count <- art_light |>
+  group_by(left_label, treatment) |>
+  summarise(
+    Count = n(),
+    .groups = "drop"
+  )
+
 ## Summary statistics by species and treatment.
-summary_stats <- combined_df |>
+summary_length <- combined_df |>
   group_by(Species_short, Treatment) |>
   summarise(
     Count = n(),
@@ -66,25 +77,13 @@ t1 <- summary_stats |>
 ## 4. Statistical test: Changes in abundance between treatments (fisher).
 # ============================================================================
 
-# Fisher's exact test for independence.
-abundance_matrix <- xtabs(Count ~ Species_short + Treatment, data = summary_stats)
-fisher.test(abundance_matrix)
+# Chi-squared test for independence.
+abundance_matrix <- xtabs(Count ~ left_label + treatment, data = summary_count)
+chisq.test(abundance_matrix)
+
 
 # ============================================================================
-## 5. Statistical test: T-test for mean depth of capture in treatments.
-# ============================================================================
-
-## T-test: Did light affect mean depth of capture?
-for (sp in unique(combined_df$Species_short)) {
-  cat(sprintf("\n%s:\n", sp))
-
-  result <- t.test(Depth ~ Treatment,
-                   data = combined_df |> filter(Species_short == sp))
-  print(result)
-}
-
-# ============================================================================
-## 6. Statistical test: T-test for length of capture in treatments.
+## 5. Statistical test: T-test for length of capture in treatments.
 # ============================================================================
 
 ## T-tests for length differences by treatment within each species.
