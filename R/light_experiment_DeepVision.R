@@ -97,9 +97,15 @@ for (sp in unique(combined_df$Species_short)) {
   print(result)
 }
 
+# ============================================================================
+## 7. Fitting a model
+# ============================================================================
 
 model_with_interaction <- lm(Depth ~ Length * Treatment, data = combined_df)
 summary(model_with_interaction)
+
+## Model is significant, but accounts for very little of the variation.
+## It is hard to get a good fit for a model with only samples per treatment.
 
 # ============================================================================
 ## 8. Visualization.
